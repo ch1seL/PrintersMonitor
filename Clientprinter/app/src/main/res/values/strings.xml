@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Client printer</string>
+    <string name="button1">Автоматический поиск</string>
+    <string name="button2">Поиск вручную</string>
+</resources>
