@@ -72,21 +72,22 @@ namespace printer
 
         private string combine(int id)
         {
-            //try
-            //{
+            try
+            {
 
             var ip = IPdt.FindByid(id).ip.Trim();
 
             printer p = new printer() { ip = ip, id = id };
             string mod = SNMPget(ip, new string[] { "1.3.6.1.2.1.1.1.0" })[0];
-            if (mod.Contains("Samsung"))
+            if (mod==null)
+                return "";
+            else if (mod.Contains("Samsung"))
                 p.Model = model.Samsung;
             else if (mod.Contains("KYOCERA"))
                 p.Model = model.Kyocera;
             else if (mod.Contains("HP"))
                 p.Model = model.HP;
-            else
-                return "";
+                
             if (p.Model == model.Kyocera)
             {
                 string[] result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.2.1.3.1", "1.3.6.1.4.1.1347.43.10.1.1.12.1.1", "1.3.6.1.2.1.25.3.5.1.2.1" });
@@ -181,12 +182,12 @@ namespace printer
                 }
                 return p.ip + " " + p.name + " " + p.count + " " + p.error + "\n";
             }
-            //}
-            //catch (Exception e)
-            //{
-            //    throw e;
+            }
+            catch (Exception e)
+            {
+                //throw e;
 
-            //}
+            }
             return "";
         }
 
@@ -200,6 +201,7 @@ namespace printer
             ErrorMessageText[18] = "no tonner";
             ErrorMessageText[26] = "no tonner";
             ErrorMessageText[32] = "low tonner";
+            ErrorMessageText[48] = "no error";
             ErrorMessageText[50] = "no tonner";
             ErrorMessageText[66] = "нет бумаги";
             //string[][] ipse = GetIP();
