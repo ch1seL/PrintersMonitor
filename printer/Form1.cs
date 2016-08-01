@@ -1,10 +1,8 @@
 ﻿using SnmpSharpNet;
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Management;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -21,22 +19,26 @@ namespace printer
         private printersDataSetTableAdapters.PrintersTableAdapter Padapter = new printersDataSetTableAdapters.PrintersTableAdapter();
         private printersDataSet.PrintersDataTable Pdt = new printersDataSet.PrintersDataTable();
         private int Pid, ELid;
+
         public Form1()
         {
             InitializeComponent();
+            var builder = new System.Text.StringBuilder();
+            builder.Append(label1.Text);
             foreach (var item in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
             {
                 if (!(item.IsIPv6LinkLocal || item.IsIPv6Multicast || item.IsIPv6SiteLocal || item.IsIPv6Teredo) && item.ToString().Length >= 7)
                 {
                     if (label1.Text == "")
-                        label1.Text += item.ToString();
+                        builder.Append(item.ToString());
                     else
-                        label1.Text += ", " + item.ToString();
+                        builder.Append(", " + item.ToString());
                     ip = item;
                     //break;
                 }
             }
-            
+            label1.Text = builder.ToString();
+
             label2.Text = "Device SNMP information:";
             Pdt = Padapter.GetData();
             Pid = Pdt.Count;
@@ -56,21 +58,24 @@ namespace printer
 
         private void B3_DoWork(object sender)
         {
-            string s = combine((int)sender);
-            if (s.Trim() != "")
+            /*var s = */
+            combine((int)sender);
+            /*if (s.Trim() != "")
             {
                 Invoke((MethodInvoker)delegate
                 {
                     //richTextBox1.Text += s;
                 });
-            }
+            }*/
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             //richTextBox1.Text = "";
-            Thread Thread = new Thread(new ParameterizedThreadStart(doit));
-            Thread.IsBackground = true;
+            var Thread = new Thread(new ParameterizedThreadStart(doit))
+            {
+                IsBackground = true
+            };
             Thread.Start(Thread);
         }
 
@@ -79,8 +84,8 @@ namespace printer
             try
             {
                 var ip = Pdt.FindByid(id).ip.Trim();
-                printer p = new printer() { ip = ip, id = id };
-                string mod = SNMPget(ip, new string[] { "1.3.6.1.2.1.1.1.0" })[0];
+                var p = new printer { ip = ip, id = id };
+                var mod = SNMPget(ip, new string[] { "1.3.6.1.2.1.1.1.0" })[0];
                 if (mod == null)
                     return "";
                 else if (mod.Contains("Samsung"))
@@ -92,33 +97,33 @@ namespace printer
 
                 if (p.Model == model.Kyocera)
                 {
-                    string[] result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.2.1.3.1",
-                                                             "1.3.6.1.4.1.1347.43.10.1.1.12.1.1",
-                                                             "1.3.6.1.2.1.25.3.5.1.2.1" });
+                    var result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.2.1.3.1",
+                                                            "1.3.6.1.4.1.1347.43.10.1.1.12.1.1",
+                                                            "1.3.6.1.2.1.25.3.5.1.2.1" });
                     p.name = "Kyocera " + result[0];
                     p.count = result[1];
                     p.error = ErrorMessageText[(int)result[2][0]];
                 }
                 else if (p.Model == model.HP)
                 {
-                    string[] result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.2.1.3.1",
-                                                             "1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.5.0",
-                                                             "1.3.6.1.2.1.25.3.5.1.2.1"});
+                    var result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.2.1.3.1",
+                                                            "1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.5.0",
+                                                            "1.3.6.1.2.1.25.3.5.1.2.1"});
                     p.name = result[0];
                     p.count = result[1];
                     p.error = ErrorMessageText[Convert.ToInt32(result[2])];
                 }
                 else if (p.Model == model.Samsung)
                 {
-                    string[] result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.2.1.3.1",
-                                                             "1.3.6.1.2.1.25.3.5.1.2.1"});
+                    var result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.2.1.3.1",
+                                                            "1.3.6.1.2.1.25.3.5.1.2.1"});
                     p.name = result[0];
                     p.count = "\"Can't extract the number of sheets\"";
                     p.error = ErrorMessageText[Convert.ToInt32(result[1])];
                 }
                 if (p.name != null && p.count != null && p.name != "" && p.count != "")
                 {
-                    bool good = false;
+                    var good = false;
                     foreach (printersDataSet.PrintersRow item in Pdt.Rows)
                     {
                         if (item.ip.Trim() == p.ip)
@@ -129,13 +134,12 @@ namespace printer
                     }
 
                     /* УБрали автоматическое добавление принтеров в базу
-                     * 
+                     *
                      * if (!good)
                     {
                         IPdt.AddPrintersRow(IPid, p.ip, p.name);
                         IPadapter.Insert(IPid++, p.ip, p.name);
                     }*/
-
 
                     if (p.error != "no error" && p.error != null)
                     {
@@ -164,14 +168,14 @@ namespace printer
                             {
                                 good = false;
 
-                                string result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.5.1.2.1" })[0];
+                                var result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.5.1.2.1" })[0];
 
                                 if (item.Error == "no tonner" && (p.error = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.5.1.2.1" })[0]) == "0")
                                 {
                                     Thread.Sleep(10000);
                                     if (item.Error == "no tonner" && (p.error = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.5.1.2.1" })[0]) == "0")
                                     {
-                                        bool i_am_here = true;
+                                        var i_am_here = true;
                                     }
                                 }
                                 break;
@@ -187,21 +191,19 @@ namespace printer
                     return p.ip + " " + p.name + " " + p.count + " " + p.error + "\n";
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                //throw e;
+                throw;
             }
             return "";
         }
 
         private void doit(object sender)
         {
-            int uptime = 0;
-            
             ErrorMessageText[0] = "no error";
 
             /*Надо переделать
-            
+
             ErrorMessageText[0] = "no error";
             ErrorMessageText[6] = "paper is jammed in the orinter";
             ErrorMessageText[10] = "крышка открыта";
@@ -214,20 +216,22 @@ namespace printer
             ErrorMessageText[66] = "нет бумаги";
 
             */
-            
+
             //string[][] ipse = GetIP();
 
             //string ips = ip.ToString().Remove(ip.ToString().IndexOf('.', 3));
 
-            printersDataSet.CurrentErorrsDataTable CEdt1 = CEdt;
+            var CEdt1 = CEdt;
             foreach (printersDataSet.CurrentErorrsRow p in CEdt1.Rows)
                 combine(p.printer_id);
 
-            printersDataSet.PrintersDataTable IPdt1 = Pdt;
+            var IPdt1 = Pdt;
             foreach (printersDataSet.PrintersRow p in IPdt1.Rows)
             {
-                Thread Thre = new Thread(new ParameterizedThreadStart(B3_DoWork));
-                Thre.IsBackground = true;
+                var Thre = new Thread(new ParameterizedThreadStart(B3_DoWork))
+                {
+                    IsBackground = true
+                };
                 Thre.Start(p.id);
             }
             /*for (int i = Convert.ToByte(ipse[0][2]); i <= Convert.ToByte(ipse[1][2]); i++)
@@ -275,89 +279,89 @@ namespace printer
 
         private string[][] GetIP()
         {
-            string entry = Dns.GetHostEntry(ip).HostName;
-            string ips = ip.ToString().Remove(ip.ToString().IndexOf('.', 3));
+            var entry = Dns.GetHostEntry(ip).HostName;
+            var ips = ip.ToString().Remove(ip.ToString().IndexOf('.', 3));
 
-            byte[] mask = null;
-            ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-            ManagementObjectCollection objMOC = objMC.GetInstances();
-            foreach (ManagementObject objMO in objMOC)
+            using (var objMC = new ManagementClass("Win32_NetworkAdapterConfiguration"))
             {
-                if (!(bool)objMO["ipEnabled"]) continue;
-                string[] subnets = (string[])objMO["IPSubnet"];
-                mask = Dns.GetHostAddresses(subnets[0])[0].GetAddressBytes();
+                byte[] mask = null;
+                var objMOC = objMC.GetInstances();
+                foreach (var objMO in objMOC)
+                {
+                    if (!(bool)objMO["ipEnabled"]) continue;
+                    var subnets = (string[])objMO["IPSubnet"];
+                    mask = Dns.GetHostAddresses(subnets[0])[0].GetAddressBytes();
+                }
+                var ipBytes = ip.GetAddressBytes();
+                var maskBytes = mask.ToArray();
+                var startIPBytes = new byte[ipBytes.Length];
+                var endIPBytes = new byte[ipBytes.Length];
+                for (int i = 0; i < ipBytes.Length; i++)
+                {
+                    startIPBytes[i] = (byte)(ipBytes[i] & maskBytes[i]);
+                    endIPBytes[i] = (byte)(ipBytes[i] | ~maskBytes[i]);
+                }
+                var startIP = new IPAddress(startIPBytes);
+                var endIP = new IPAddress(endIPBytes);
+                var bstart = startIP.ToString().Split('.');
+                var bend = endIP.ToString().Split('.');
+                return new string[2][] { bstart, bend };
             }
-            byte[] ipBytes = ip.GetAddressBytes();
-            byte[] maskBytes = mask.ToArray();
-            byte[] startIPBytes = new byte[ipBytes.Length];
-            byte[] endIPBytes = new byte[ipBytes.Length];
-            for (int i = 0; i < ipBytes.Length; i++)
-            {
-                startIPBytes[i] = (byte)(ipBytes[i] & maskBytes[i]);
-                endIPBytes[i] = (byte)(ipBytes[i] | ~maskBytes[i]);
-            }
-            IPAddress startIP = new IPAddress(startIPBytes);
-            IPAddress endIP = new IPAddress(endIPBytes);
-            string[] bstart = startIP.ToString().Split('.');
-            string[] bend = endIP.ToString().Split('.');
-            return new string[2][] { bstart, bend };
         }
 
-        private string[] SNMPget(string ip, string[] oid)
+        private static string[] SNMPget(string ip, string[] oid)
         {
-            string[] output = new string[oid.Length];
-            IpAddress agent = new IpAddress(ip);
-            Pdu pdu = new Pdu(PduType.Get);
+            var output = new string[oid.Length];
+            var agent = new IpAddress(ip);
+            var pdu = new Pdu(PduType.Get);
             foreach (var item in oid)
                 pdu.VbList.Add(item);
-            UdpTarget target = new UdpTarget((IPAddress)agent, 161, 512, 1);
-            try
-            {
-                SnmpV2Packet result2 = (SnmpV2Packet)target.Request(pdu, new AgentParameters(SnmpVersion.Ver2, new OctetString("public")));
-                for (int i = 0; i < result2.Pdu.VbList.Count; i++)
-                    if (oid[i] == "1.3.6.1.2.1.25.3.5.1.2.1")
-                        output[i] = result2.Pdu.VbList[i].Value.GetHashCode().ToString();
-                    else
-                        output[i] = result2.Pdu.VbList[i].Value.ToString();
-            }
-            catch (Exception)
+            using (var target = new UdpTarget((IPAddress)agent, 161, 512, 1))
             {
                 try
                 {
-                    SnmpV1Packet result1 = (SnmpV1Packet)target.Request(pdu, new AgentParameters(SnmpVersion.Ver1, new OctetString("public")));
-                    for (int i = 0; i < result1.Pdu.VbList.Count; i++)
+                    var result2 = (SnmpV2Packet)target.Request(pdu, new AgentParameters(SnmpVersion.Ver2, new OctetString("public")));
+                    for (int i = 0; i < result2.Pdu.VbList.Count; i++)
                         if (oid[i] == "1.3.6.1.2.1.25.3.5.1.2.1")
-                            output[i] = result1.Pdu.VbList[i].Value.GetHashCode().ToString();
+                            output[i] = result2.Pdu.VbList[i].Value.GetHashCode().ToString();
                         else
-                            output[i] = result1.Pdu.VbList[i].Value.ToString();
+                            output[i] = result2.Pdu.VbList[i].Value.ToString();
                 }
                 catch (Exception)
                 {
+                    var result1 = (SnmpV1Packet)target.Request(pdu, new AgentParameters(SnmpVersion.Ver1, new OctetString("public")));
+                    for (int i = 0; i < result1.Pdu.VbList.Count; i++)
+                        if (oid[i] == "1.3.6.1.2.1.25.3.5.1.2.1")
+                        {
+                            output[i] = result1.Pdu.VbList[i].Value.GetHashCode().ToString();
+                            if (output[i] == "\0" || output[i] == "Null" || output[i] == "" || output[i] == "00 00")
+                                output[i] = "0";
+                        }
+                        else
+                            output[i] = result1.Pdu.VbList[i].Value.ToString();
                 }
+                return output;
             }
-            for (int i = 0; i < oid.Length; i++)
-                if (oid[i] == "1.3.6.1.2.1.25.3.5.1.2.1")
-                    if (output[i] == "\0" || output[i] == "Null" || output[i] == "" || output[i] == "00 00")
-                        output[i] = "0";
-            return output;
         }
 
         private void Time_Tick(object sender, EventArgs e)
         {
             //richTextBox1.Text = "";
-            printersDataSet.PrintersDataTable IPdt1 = Pdt;
+            var IPdt1 = Pdt;
             foreach (printersDataSet.PrintersRow p in IPdt1.Rows)
             {
-                Thread Thre = new Thread(new ParameterizedThreadStart(B3_DoWork));
-                Thre.IsBackground = true;
-                Thre.Priority = ThreadPriority.Lowest;
+                var Thre = new Thread(new ParameterizedThreadStart(B3_DoWork))
+                {
+                    IsBackground = true,
+                    Priority = ThreadPriority.Lowest
+                };
                 Thre.Start(p.id);
             }
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            printersDataSet.CurrentErorrsDataTable CEdt1 = CEdt;
+            var CEdt1 = CEdt;
             foreach (printersDataSet.CurrentErorrsRow p in CEdt1.Rows)
                 combine(p.printer_id);
         }
@@ -366,7 +370,6 @@ namespace printer
         {
             // TODO: данная строка кода позволяет загрузить данные в таблицу "printersDataSet.Printers". При необходимости она может быть перемещена или удалена.
             this.printersTableAdapter.Fill(this.printersDataSet.Printers);
-
         }
 
         public struct printer

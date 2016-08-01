@@ -37,10 +37,10 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.printersDataSet = new printer.printersDataSet();
+            this.printersDataSet = new printersDataSet();
             this.printersDataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.printersBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.printersTableAdapter = new printer.printersDataSetTableAdapters.PrintersTableAdapter();
+            this.printersTableAdapter = new printersDataSetTableAdapters.PrintersTableAdapter();
             this.idDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.invnomDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.markidDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
