@@ -84,7 +84,7 @@ namespace printer
             try
             {
                 var ip = Pdt.FindByid(id).ip.Trim();
-                var p = new printer { ip = ip, id = id };
+                var p = new cprinter { ip = ip, id = id };
                 var mod = SNMPget(ip, new string[] { "1.3.6.1.2.1.1.1.0" })[0];
                 if (mod == null)
                     return "";
@@ -193,7 +193,7 @@ namespace printer
             }
             catch (Exception)
             {
-                throw;
+                //throw;
             }
             return "";
         }
@@ -323,7 +323,7 @@ namespace printer
                     var result2 = (SnmpV2Packet)target.Request(pdu, new AgentParameters(SnmpVersion.Ver2, new OctetString("public")));
                     for (int i = 0; i < result2.Pdu.VbList.Count; i++)
                         if (oid[i] == "1.3.6.1.2.1.25.3.5.1.2.1")
-                            output[i] = result2.Pdu.VbList[i].Value.GetHashCode().ToString();
+                            output[i] = ((OctetString)(result2.Pdu.VbList[i].Value)).ToArray()[0].ToString();
                         else
                             output[i] = result2.Pdu.VbList[i].Value.ToString();
                 }
@@ -332,11 +332,11 @@ namespace printer
                     var result1 = (SnmpV1Packet)target.Request(pdu, new AgentParameters(SnmpVersion.Ver1, new OctetString("public")));
                     for (int i = 0; i < result1.Pdu.VbList.Count; i++)
                         if (oid[i] == "1.3.6.1.2.1.25.3.5.1.2.1")
-                        {
-                            output[i] = result1.Pdu.VbList[i].Value.GetHashCode().ToString();
-                            if (output[i] == "\0" || output[i] == "Null" || output[i] == "" || output[i] == "00 00")
-                                output[i] = "0";
-                        }
+                        //{
+                            output[i] = ((OctetString)(result1.Pdu.VbList[i].Value)).ToArray()[0].ToString();
+                            /*if (output[i] == "\0" || output[i] == "Null" || output[i] == "" || output[i] == "00 00")
+                                output[i] = "0";*/
+                        //}
                         else
                             output[i] = result1.Pdu.VbList[i].Value.ToString();
                 }
@@ -368,11 +368,14 @@ namespace printer
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "printersDataSet.CurrentErorrs". При необходимости она может быть перемещена или удалена.
+            this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
             // TODO: данная строка кода позволяет загрузить данные в таблицу "printersDataSet.Printers". При необходимости она может быть перемещена или удалена.
             this.printersTableAdapter.Fill(this.printersDataSet.Printers);
+
         }
 
-        public struct printer
+        public struct cprinter
         {
             public int id { get; set; }
             public string count { get; set; }
