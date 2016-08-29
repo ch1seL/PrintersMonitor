@@ -73,6 +73,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="msng.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="printersDataSet.cs">
       <DependentUpon>printersDataSet.xsd</DependentUpon>
     </Compile>

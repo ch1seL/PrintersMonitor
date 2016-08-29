@@ -140,8 +140,9 @@
             this.dataGridViewTextBoxColumn1,
             this.dataGridViewTextBoxColumn2});
             this.currentErorrsDataGridView.DataSource = this.currentErorrsBindingSource;
-            this.currentErorrsDataGridView.Location = new System.Drawing.Point(612, 30);
+            this.currentErorrsDataGridView.Location = new System.Drawing.Point(565, 30);
             this.currentErorrsDataGridView.Name = "currentErorrsDataGridView";
+            this.currentErorrsDataGridView.ReadOnly = true;
             this.currentErorrsDataGridView.Size = new System.Drawing.Size(300, 353);
             this.currentErorrsDataGridView.TabIndex = 4;
             // 
@@ -150,12 +151,14 @@
             this.dataGridViewTextBoxColumn1.DataPropertyName = "printer_id";
             this.dataGridViewTextBoxColumn1.HeaderText = "printer_id";
             this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.ReadOnly = true;
             // 
             // dataGridViewTextBoxColumn2
             // 
             this.dataGridViewTextBoxColumn2.DataPropertyName = "Error";
             this.dataGridViewTextBoxColumn2.HeaderText = "Error";
             this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            this.dataGridViewTextBoxColumn2.ReadOnly = true;
             // 
             // printersDataGridView
             // 
@@ -170,7 +173,8 @@
             this.printersDataGridView.DataSource = this.printersBindingSource;
             this.printersDataGridView.Location = new System.Drawing.Point(16, 30);
             this.printersDataGridView.Name = "printersDataGridView";
-            this.printersDataGridView.Size = new System.Drawing.Size(590, 353);
+            this.printersDataGridView.ReadOnly = true;
+            this.printersDataGridView.Size = new System.Drawing.Size(543, 353);
             this.printersDataGridView.TabIndex = 4;
             // 
             // dataGridViewTextBoxColumn3
@@ -178,36 +182,41 @@
             this.dataGridViewTextBoxColumn3.DataPropertyName = "id";
             this.dataGridViewTextBoxColumn3.HeaderText = "id";
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            this.dataGridViewTextBoxColumn3.ReadOnly = true;
             // 
             // dataGridViewTextBoxColumn4
             // 
             this.dataGridViewTextBoxColumn4.DataPropertyName = "invnom";
             this.dataGridViewTextBoxColumn4.HeaderText = "invnom";
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.dataGridViewTextBoxColumn4.ReadOnly = true;
             // 
             // dataGridViewTextBoxColumn5
             // 
             this.dataGridViewTextBoxColumn5.DataPropertyName = "mark_id";
             this.dataGridViewTextBoxColumn5.HeaderText = "mark_id";
             this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
+            this.dataGridViewTextBoxColumn5.ReadOnly = true;
             // 
             // dataGridViewTextBoxColumn6
             // 
             this.dataGridViewTextBoxColumn6.DataPropertyName = "coment";
             this.dataGridViewTextBoxColumn6.HeaderText = "coment";
             this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
+            this.dataGridViewTextBoxColumn6.ReadOnly = true;
             // 
             // dataGridViewTextBoxColumn7
             // 
             this.dataGridViewTextBoxColumn7.DataPropertyName = "ip";
             this.dataGridViewTextBoxColumn7.HeaderText = "ip";
             this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            this.dataGridViewTextBoxColumn7.ReadOnly = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1022, 432);
+            this.ClientSize = new System.Drawing.Size(1167, 432);
             this.Controls.Add(this.printersDataGridView);
             this.Controls.Add(this.currentErorrsDataGridView);
             this.Controls.Add(this.label2);

@@ -12,32 +12,31 @@ namespace printer
     {
         public static printersDataSet.CurrentErorrsDataTable CEdt = new printersDataSet.CurrentErorrsDataTable();
         public static string[] ErrorMessageText = new string[128];
-        private printersDataSetTableAdapters.ErorrsLogTableAdapter ELadapter = new printersDataSetTableAdapters.ErorrsLogTableAdapter();
-        private printersDataSet.ErorrsLogDataTable ELdt = new printersDataSet.ErorrsLogDataTable();
-        private printersDataSetTableAdapters.CurrentErorrsTableAdapter CEadapter = new printersDataSetTableAdapters.CurrentErorrsTableAdapter();
+        public static printersDataSetTableAdapters.ErorrsLogTableAdapter ELadapter = new printersDataSetTableAdapters.ErorrsLogTableAdapter();
+        public printersDataSet.ErorrsLogDataTable ELdt = new printersDataSet.ErorrsLogDataTable();
+        public static printersDataSetTableAdapters.CurrentErorrsTableAdapter CEadapter = new printersDataSetTableAdapters.CurrentErorrsTableAdapter();
         private IPAddress ip;
         private printersDataSetTableAdapters.PrintersTableAdapter Padapter = new printersDataSetTableAdapters.PrintersTableAdapter();
         private printersDataSet.PrintersDataTable Pdt = new printersDataSet.PrintersDataTable();
         private int Pid, ELid;
+        private msngcentr msngcentr = new msngcentr();
 
         public Form1()
         {
             InitializeComponent();
             var builder = new System.Text.StringBuilder();
-            builder.Append(label1.Text);
             foreach (var item in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
             {
                 if (!(item.IsIPv6LinkLocal || item.IsIPv6Multicast || item.IsIPv6SiteLocal || item.IsIPv6Teredo) && item.ToString().Length >= 7)
                 {
                     if (label1.Text == "")
-                        builder.Append(item.ToString());
+                        label1.Text = item.ToString();
                     else
-                        builder.Append(", " + item.ToString());
+                        label1.Text += ", " + item.ToString();
                     ip = item;
                     //break;
                 }
             }
-            label1.Text = builder.ToString();
 
             label2.Text = "Device SNMP information:";
             Pdt = Padapter.GetData();
@@ -47,6 +46,11 @@ namespace printer
             CEdt = CEadapter.GetData();
             button1_Click(new object(), new EventArgs());
             new Server(1994);
+            msngcentr.Parent = this;
+            msngcentr.Show();
+            msngcentr.BackColor = System.Drawing.Color.Coral;
+            msngcentr.Location = new System.Drawing.Point(871, 30);
+            msngcentr.Size = new System.Drawing.Size(260, 353);
         }
 
         public enum model
@@ -102,7 +106,7 @@ namespace printer
                                                             "1.3.6.1.2.1.25.3.5.1.2.1" });
                     p.name = "Kyocera " + result[0];
                     p.count = result[1];
-                    p.error = ErrorMessageText[(int)result[2][0]];
+                    p.error = ErrorMessageText[Convert.ToInt32(result[2])];
                 }
                 else if (p.Model == model.HP)
                 {
@@ -124,9 +128,10 @@ namespace printer
                 if (p.name != null && p.count != null && p.name != "" && p.count != "")
                 {
                     var good = false;
+                    /*
                     foreach (printersDataSet.PrintersRow item in Pdt.Rows)
                     {
-                        if (item.ip.Trim() == p.ip)
+                        if (item.id == p.id)
                         {
                             good = true;
                             break;
@@ -154,9 +159,10 @@ namespace printer
                         }
                         if (good)
                         {
-                            ELadapter.Insert(p.id, DateTime.Now, Convert.ToInt32(p.count), p.error ?? "");
+                            ELadapter.Insert(p.id, DateTime.Now, Convert.ToInt32(p.count), p.error ?? "", 0);
                             CEadapter.Insert(p.id, p.error ?? "");
                             CEdt.AddCurrentErorrsRow(p.id, p.error ?? "");
+                            //this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
                         }
                     }
                     else
@@ -183,15 +189,28 @@ namespace printer
                         }
                         if (!good)
                         {
-                            CEadapter.Delete(p.id);
-                            CEdt = CEadapter.GetData();
-                            ELadapter.Insert(p.id, DateTime.Now, Convert.ToInt32(p.count), ErrorMessageText[Convert.ToInt32(p.error)]);
+                            Invoke((MethodInvoker)delegate
+                            {
+                                good = true;
+                                foreach (msng item in msngcentr.Controls)
+                                {
+                                    if (item.print.id == p.id)
+                                    {
+                                        good = false;
+                                        break;
+                                    }
+                                }
+                                if (good)
+                                {
+                                    msngcentr.Add(p, Pdt.FindByid(p.id).coment, CEdt.FindByprinter_id(p.id).Error);
+                                }
+                            });
                         }
                     }
                     return p.ip + " " + p.name + " " + p.count + " " + p.error + "\n";
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 //throw;
             }
@@ -332,11 +351,7 @@ namespace printer
                     var result1 = (SnmpV1Packet)target.Request(pdu, new AgentParameters(SnmpVersion.Ver1, new OctetString("public")));
                     for (int i = 0; i < result1.Pdu.VbList.Count; i++)
                         if (oid[i] == "1.3.6.1.2.1.25.3.5.1.2.1")
-                        //{
                             output[i] = ((OctetString)(result1.Pdu.VbList[i].Value)).ToArray()[0].ToString();
-                            /*if (output[i] == "\0" || output[i] == "Null" || output[i] == "" || output[i] == "00 00")
-                                output[i] = "0";*/
-                        //}
                         else
                             output[i] = result1.Pdu.VbList[i].Value.ToString();
                 }
@@ -372,7 +387,6 @@ namespace printer
             this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
             // TODO: данная строка кода позволяет загрузить данные в таблицу "printersDataSet.Printers". При необходимости она может быть перемещена или удалена.
             this.printersTableAdapter.Fill(this.printersDataSet.Printers);
-
         }
 
         public struct cprinter
