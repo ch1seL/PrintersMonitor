@@ -128,7 +128,7 @@ namespace printer
                     var result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.2.1.3.1",
                                                             "1.3.6.1.2.1.25.3.5.1.2.1"});
                     p.name = result[0];
-                    p.count = "\"Can't extract the number of sheets\"";
+                    p.count = "0";
                     if ((p.error = ErrorMessageText[Convert.ToInt32(result[1])]) == null)
                     {
                         p.error = "uncnown error " + result[2] + " add this error";
