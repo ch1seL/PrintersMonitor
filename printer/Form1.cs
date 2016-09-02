@@ -106,7 +106,10 @@ namespace printer
                                                             "1.3.6.1.2.1.25.3.5.1.2.1" });
                     p.name = "Kyocera " + result[0];
                     p.count = result[1];
-                    p.error = ErrorMessageText[Convert.ToInt32(result[2])];
+                    if ((p.error = ErrorMessageText[Convert.ToInt32(result[2])])==null)
+                    {
+                        p.error = "uncnown error " + result[2] + " add this error";
+                    }
                 }
                 else if (p.Model == model.HP)
                 {
@@ -115,7 +118,10 @@ namespace printer
                                                             "1.3.6.1.2.1.25.3.5.1.2.1"});
                     p.name = result[0];
                     p.count = result[1];
-                    p.error = ErrorMessageText[Convert.ToInt32(result[2])];
+                    if ((p.error = ErrorMessageText[Convert.ToInt32(result[2])]) == null)
+                    {
+                        p.error = "uncnown error " + result[2] + " add this error";
+                    }
                 }
                 else if (p.Model == model.Samsung)
                 {
@@ -123,7 +129,10 @@ namespace printer
                                                             "1.3.6.1.2.1.25.3.5.1.2.1"});
                     p.name = result[0];
                     p.count = "\"Can't extract the number of sheets\"";
-                    p.error = ErrorMessageText[Convert.ToInt32(result[1])];
+                    if ((p.error = ErrorMessageText[Convert.ToInt32(result[1])]) == null)
+                    {
+                        p.error = "uncnown error " + result[2] + " add this error";
+                    }
                 }
                 if (p.name != null && p.count != null && p.name != "" && p.count != "")
                 {
@@ -146,7 +155,7 @@ namespace printer
                         IPadapter.Insert(IPid++, p.ip, p.name);
                     }*/
 
-                    if (p.error != "no error" && p.error != null)
+                    if (p.error != "no error")
                     {
                         good = true;
                         foreach (printersDataSet.CurrentErorrsRow item in CEdt.Rows)
@@ -159,11 +168,11 @@ namespace printer
                         }
                         if (good)
                         {
-                            ELadapter.Insert(p.id, DateTime.Now, Convert.ToInt32(p.count), p.error ?? "", 0);
-                            CEadapter.Insert(p.id, p.error ?? "");
-                            CEdt.AddCurrentErorrsRow(p.id, p.error ?? "");
-                            //this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
+                            ELadapter.Insert(p.id, DateTime.Now, Convert.ToInt32(p.count), p.error, 0);
+                            CEadapter.Insert(p.id, p.error);
+                            CEdt.AddCurrentErorrsRow(p.id, p.error);
                         }
+                        this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
                     }
                     else
                     {
@@ -220,6 +229,7 @@ namespace printer
         private void doit(object sender)
         {
             ErrorMessageText[0] = "no error";
+            ErrorMessageText[10] = "крышка открыта";
 
             /*Надо переделать
 
@@ -372,6 +382,7 @@ namespace printer
                 };
                 Thre.Start(p.id);
             }
+            this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
         }
 
         private void timer2_Tick(object sender, EventArgs e)
@@ -379,6 +390,7 @@ namespace printer
             var CEdt1 = CEdt;
             foreach (printersDataSet.CurrentErorrsRow p in CEdt1.Rows)
                 combine(p.printer_id);
+            this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
         }
 
         private void Form1_Load(object sender, EventArgs e)
