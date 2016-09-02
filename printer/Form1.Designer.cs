@@ -32,15 +32,8 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.dataSet1 = new System.Data.DataSet();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.printersDataSet = new printer.printersDataSet();
-            this.printersBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.printersTableAdapter = new printer.printersDataSetTableAdapters.PrintersTableAdapter();
-            this.currentErorrsBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.currentErorrsTableAdapter = new printer.printersDataSetTableAdapters.CurrentErorrsTableAdapter();
-            this.tableAdapterManager = new printer.printersDataSetTableAdapters.TableAdapterManager();
             this.currentErorrsDataGridView = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -50,10 +43,6 @@
             this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            ((System.ComponentModel.ISupportInitialize)(this.dataSet1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.printersDataSet)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.printersBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.currentErorrsBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.currentErorrsDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.printersDataGridView)).BeginInit();
             this.SuspendLayout();
@@ -85,10 +74,6 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "label2";
             // 
-            // dataSet1
-            // 
-            this.dataSet1.DataSetName = "NewDataSet";
-            // 
             // timer1
             // 
             this.timer1.Enabled = true;
@@ -101,45 +86,12 @@
             this.timer2.Interval = 60000;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // printersDataSet
-            // 
-            this.printersDataSet.DataSetName = "printersDataSet";
-            this.printersDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
-            // 
-            // printersBindingSource
-            // 
-            this.printersBindingSource.DataMember = "Printers";
-            this.printersBindingSource.DataSource = this.printersDataSet;
-            // 
-            // printersTableAdapter
-            // 
-            this.printersTableAdapter.ClearBeforeFill = true;
-            // 
-            // currentErorrsBindingSource
-            // 
-            this.currentErorrsBindingSource.DataMember = "CurrentErorrs";
-            this.currentErorrsBindingSource.DataSource = this.printersDataSet;
-            // 
-            // currentErorrsTableAdapter
-            // 
-            this.currentErorrsTableAdapter.ClearBeforeFill = true;
-            // 
-            // tableAdapterManager
-            // 
-            this.tableAdapterManager.BackupDataSetBeforeUpdate = false;
-            this.tableAdapterManager.CurrentErorrsTableAdapter = this.currentErorrsTableAdapter;
-            this.tableAdapterManager.ErorrsLogTableAdapter = null;
-            this.tableAdapterManager.PrintersTableAdapter = this.printersTableAdapter;
-            this.tableAdapterManager.UpdateOrder = printer.printersDataSetTableAdapters.TableAdapterManager.UpdateOrderOption.InsertUpdateDelete;
-            // 
             // currentErorrsDataGridView
             // 
-            this.currentErorrsDataGridView.AutoGenerateColumns = false;
             this.currentErorrsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.currentErorrsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn1,
             this.dataGridViewTextBoxColumn2});
-            this.currentErorrsDataGridView.DataSource = this.currentErorrsBindingSource;
             this.currentErorrsDataGridView.Location = new System.Drawing.Point(565, 30);
             this.currentErorrsDataGridView.Name = "currentErorrsDataGridView";
             this.currentErorrsDataGridView.ReadOnly = true;
@@ -162,7 +114,6 @@
             // 
             // printersDataGridView
             // 
-            this.printersDataGridView.AutoGenerateColumns = false;
             this.printersDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.printersDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn3,
@@ -170,7 +121,6 @@
             this.dataGridViewTextBoxColumn5,
             this.dataGridViewTextBoxColumn6,
             this.dataGridViewTextBoxColumn7});
-            this.printersDataGridView.DataSource = this.printersBindingSource;
             this.printersDataGridView.Location = new System.Drawing.Point(16, 30);
             this.printersDataGridView.Name = "printersDataGridView";
             this.printersDataGridView.ReadOnly = true;
@@ -225,10 +175,6 @@
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dataSet1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.printersDataSet)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.printersBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.currentErorrsBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.currentErorrsDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.printersDataGridView)).EndInit();
             this.ResumeLayout(false);
@@ -240,19 +186,12 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Data.DataSet dataSet1;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Timer timer2;
-        private printersDataSet printersDataSet;
-        private System.Windows.Forms.BindingSource printersBindingSource;
-        private printersDataSetTableAdapters.PrintersTableAdapter printersTableAdapter;
-        private System.Windows.Forms.BindingSource currentErorrsBindingSource;
-        private printersDataSetTableAdapters.CurrentErorrsTableAdapter currentErorrsTableAdapter;
-        private printersDataSetTableAdapters.TableAdapterManager tableAdapterManager;
         private System.Windows.Forms.DataGridView currentErorrsDataGridView;
+        private System.Windows.Forms.DataGridView printersDataGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private System.Windows.Forms.DataGridView printersDataGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;

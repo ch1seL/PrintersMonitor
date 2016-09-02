@@ -46,6 +46,10 @@ namespace printer
             ELid = ELdt.Count;
             CEdt = CEadapter.GetData();
             Edt = Eadapter.GetData();
+
+            printersDataGridView.DataSource = Pdt;
+            currentErorrsDataGridView.DataSource = CEdt;
+
             button1_Click(new object(), new EventArgs());
             new Server(1994);
             msngcentr.Parent = this;
@@ -229,7 +233,6 @@ namespace printer
                             });
                         }
                     }
-                    this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
                     return p.ip + " " + p.name + " " + p.count + " " + p.error + "\n";
                 }
             }
@@ -350,12 +353,16 @@ namespace printer
                 }
                 catch (Exception)
                 {
-                    var result1 = (SnmpV1Packet)target.Request(pdu, new AgentParameters(SnmpVersion.Ver1, new OctetString("public")));
-                    for (int i = 0; i < result1.Pdu.VbList.Count; i++)
-                        if (oid[i] == "1.3.6.1.2.1.25.3.5.1.2.1")
-                            output[i] = ((OctetString)(result1.Pdu.VbList[i].Value)).ToArray()[0].ToString();
-                        else
-                            output[i] = result1.Pdu.VbList[i].Value.ToString();
+                    try
+                    {
+                        var result1 = (SnmpV1Packet)target.Request(pdu, new AgentParameters(SnmpVersion.Ver1, new OctetString("public")));
+                        for (int i = 0; i < result1.Pdu.VbList.Count; i++)
+                            if (oid[i] == "1.3.6.1.2.1.25.3.5.1.2.1")
+                                output[i] = ((OctetString)(result1.Pdu.VbList[i].Value)).ToArray()[0].ToString();
+                            else
+                                output[i] = result1.Pdu.VbList[i].Value.ToString();
+                    }
+                    catch { }
                 }
                 return output;
             }
@@ -374,7 +381,6 @@ namespace printer
                 };
                 Thre.Start(p.id);
             }
-            this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
         }
 
         private void timer2_Tick(object sender, EventArgs e)
@@ -382,15 +388,11 @@ namespace printer
             var CEdt1 = CEdt;
             foreach (printersDataSet.CurrentErorrsRow p in CEdt1.Rows)
                 combine(p.printer_id);
-            this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // TODO: данная строка кода позволяет загрузить данные в таблицу "printersDataSet.CurrentErorrs". При необходимости она может быть перемещена или удалена.
-            this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
-            // TODO: данная строка кода позволяет загрузить данные в таблицу "printersDataSet.Printers". При необходимости она может быть перемещена или удалена.
-            this.printersTableAdapter.Fill(this.printersDataSet.Printers);
+
         }
 
         public struct cprinter
