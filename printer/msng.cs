@@ -6,18 +6,16 @@ namespace printer
 {
     public class msngcentr : TableLayoutPanel
     {
-        private List<msng> msngs;
-
         public msngcentr()
         {
             ColumnCount = 1;
-            ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             RowCount = 0;
         }
 
         public void Add(Form1.cprinter p, string name, string error)
         {
-            RowStyles.Add(new RowStyle(System.Windows.Forms.SizeType.Absolute, 65F));
+            RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
             RowCount++;
             var msng3 = new msng(p, name, error);
             Controls.Add(msng3, 0, RowCount - 1);
@@ -36,7 +34,7 @@ namespace printer
             RowCount = Controls.Count;
             for (int i = index; i < C; i++)
             {
-                RowStyles.Add(new RowStyle(System.Windows.Forms.SizeType.Absolute, 65F));
+                RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
                 Controls.Add(c[i], 0, i);
             }
         }

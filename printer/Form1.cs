@@ -11,7 +11,6 @@ namespace printer
     public partial class Form1 : Form
     {
         public static printersDataSet.CurrentErorrsDataTable CEdt = new printersDataSet.CurrentErorrsDataTable();
-        public static string[] ErrorMessageText = new string[128];
         public static printersDataSetTableAdapters.ErorrsLogTableAdapter ELadapter = new printersDataSetTableAdapters.ErorrsLogTableAdapter();
         public printersDataSet.ErorrsLogDataTable ELdt = new printersDataSet.ErorrsLogDataTable();
         public static printersDataSetTableAdapters.CurrentErorrsTableAdapter CEadapter = new printersDataSetTableAdapters.CurrentErorrsTableAdapter();
@@ -20,6 +19,8 @@ namespace printer
         private printersDataSet.PrintersDataTable Pdt = new printersDataSet.PrintersDataTable();
         private int Pid, ELid;
         private msngcentr msngcentr = new msngcentr();
+        private printersDataSetTableAdapters.ErrorListTableAdapter Eadapter = new printersDataSetTableAdapters.ErrorListTableAdapter();
+        private printersDataSet.ErrorListDataTable Edt = new printersDataSet.ErrorListDataTable();
 
         public Form1()
         {
@@ -44,6 +45,7 @@ namespace printer
             ELdt = ELadapter.GetData();
             ELid = ELdt.Count;
             CEdt = CEadapter.GetData();
+            Edt = Eadapter.GetData();
             button1_Click(new object(), new EventArgs());
             new Server(1994);
             msngcentr.Parent = this;
@@ -106,9 +108,24 @@ namespace printer
                                                             "1.3.6.1.2.1.25.3.5.1.2.1" });
                     p.name = "Kyocera " + result[0];
                     p.count = result[1];
-                    if ((p.error = ErrorMessageText[Convert.ToInt32(result[2])])==null)
+
+                    
+                    if (Edt.Rows.Contains(Convert.ToInt32(result[2])))
                     {
-                        p.error = "uncnown error " + result[2] + " add this error";
+                        p.error = Edt.FindById(Convert.ToInt32(result[2])).Error;
+                    }
+                    else
+                    {
+                        Invoke((MethodInvoker)delegate
+                        {
+                            AddError AddError = new AddError(Convert.ToInt32(result[2]), Pdt.FindByid(p.id).coment);
+                            AddError.Show();
+                        });
+                        while (!Edt.Rows.Contains(Convert.ToInt32(result[2])))
+                        {
+                            Thread.Sleep(1000);
+                        }
+                        p.error = Edt.FindById(Convert.ToInt32(result[2])).Error;
                     }
                 }
                 else if (p.Model == model.HP)
@@ -118,9 +135,22 @@ namespace printer
                                                             "1.3.6.1.2.1.25.3.5.1.2.1"});
                     p.name = result[0];
                     p.count = result[1];
-                    if ((p.error = ErrorMessageText[Convert.ToInt32(result[2])]) == null)
+                    if (Edt.Rows.Contains(Convert.ToInt32(result[2])))
                     {
-                        p.error = "uncnown error " + result[2] + " add this error";
+                        p.error = Edt.FindById(Convert.ToInt32(result[2])).Error;
+                    }
+                    else
+                    {
+                        Invoke((MethodInvoker)delegate
+                        {
+                            AddError AddError = new AddError(Convert.ToInt32(result[2]), Pdt.FindByid(p.id).coment);
+                            AddError.Show();
+                        });
+                        while (!Edt.Rows.Contains(Convert.ToInt32(result[2])))
+                        {
+                            Thread.Sleep(1000);
+                        }
+                        p.error = Edt.FindById(Convert.ToInt32(result[2])).Error;
                     }
                 }
                 else if (p.Model == model.Samsung)
@@ -129,32 +159,27 @@ namespace printer
                                                             "1.3.6.1.2.1.25.3.5.1.2.1"});
                     p.name = result[0];
                     p.count = "0";
-                    if ((p.error = ErrorMessageText[Convert.ToInt32(result[1])]) == null)
+                    if (Edt.Rows.Contains(Convert.ToInt32(result[1])))
                     {
-                        p.error = "uncnown error " + result[2] + " add this error";
+                        p.error = Edt.FindById(Convert.ToInt32(result[1])).Error;
+                    }
+                    else
+                    {
+                        Invoke((MethodInvoker)delegate
+                        {
+                            AddError AddError = new AddError(Convert.ToInt32(result[1]), Pdt.FindByid(p.id).coment);
+                            AddError.Show();
+                        });
+                        while (!Edt.Rows.Contains(Convert.ToInt32(result[1])))
+                        {
+                            Thread.Sleep(1000);
+                        }
+                        p.error = Edt.FindById(Convert.ToInt32(result[1])).Error;
                     }
                 }
                 if (p.name != null && p.count != null && p.name != "" && p.count != "")
                 {
                     var good = false;
-                    /*
-                    foreach (printersDataSet.PrintersRow item in Pdt.Rows)
-                    {
-                        if (item.id == p.id)
-                        {
-                            good = true;
-                            break;
-                        }
-                    }
-
-                    /* УБрали автоматическое добавление принтеров в базу
-                     *
-                     * if (!good)
-                    {
-                        IPdt.AddPrintersRow(IPid, p.ip, p.name);
-                        IPadapter.Insert(IPid++, p.ip, p.name);
-                    }*/
-
                     if (p.error != "no error")
                     {
                         good = true;
@@ -172,7 +197,6 @@ namespace printer
                             CEadapter.Insert(p.id, p.error);
                             CEdt.AddCurrentErorrsRow(p.id, p.error);
                         }
-                        this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
                     }
                     else
                     {
@@ -182,17 +206,6 @@ namespace printer
                             if (item.printer_id == p.id)
                             {
                                 good = false;
-
-                                var result = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.5.1.2.1" })[0];
-
-                                if (item.Error == "no tonner" && (p.error = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.5.1.2.1" })[0]) == "0")
-                                {
-                                    Thread.Sleep(10000);
-                                    if (item.Error == "no tonner" && (p.error = SNMPget(ip, new string[] { "1.3.6.1.2.1.25.3.5.1.2.1" })[0]) == "0")
-                                    {
-                                        var i_am_here = true;
-                                    }
-                                }
                                 break;
                             }
                         }
@@ -216,6 +229,7 @@ namespace printer
                             });
                         }
                     }
+                    this.currentErorrsTableAdapter.Fill(this.printersDataSet.CurrentErorrs);
                     return p.ip + " " + p.name + " " + p.count + " " + p.error + "\n";
                 }
             }
@@ -228,28 +242,6 @@ namespace printer
 
         private void doit(object sender)
         {
-            ErrorMessageText[0] = "no error";
-            ErrorMessageText[10] = "крышка открыта";
-
-            /*Надо переделать
-
-            ErrorMessageText[0] = "no error";
-            ErrorMessageText[6] = "paper is jammed in the orinter";
-            ErrorMessageText[10] = "крышка открыта";
-            ErrorMessageText[12] = "no tonner";///
-            ErrorMessageText[18] = "no tonner";
-            ErrorMessageText[26] = "no tonner";
-            ErrorMessageText[32] = "low tonner";
-            ErrorMessageText[48] = "no error";
-            ErrorMessageText[50] = "no tonner";
-            ErrorMessageText[66] = "нет бумаги";
-
-            */
-
-            //string[][] ipse = GetIP();
-
-            //string ips = ip.ToString().Remove(ip.ToString().IndexOf('.', 3));
-
             var CEdt1 = CEdt;
             foreach (printersDataSet.CurrentErorrsRow p in CEdt1.Rows)
                 combine(p.printer_id);
